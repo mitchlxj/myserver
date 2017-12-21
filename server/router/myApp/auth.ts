@@ -265,7 +265,7 @@ router.get('/userinfoupdate',ensureAuthorized,(req,res)=>{
             data.Status = 'OK';
             data.StatusContent='更新成功';
             data.UserId=userid;
-            data.UserNickName=nickname;
+            data.UserNickName=nickname; 
             res.send(JSON.stringify(data));
         }
    });
