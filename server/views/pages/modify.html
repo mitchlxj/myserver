@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+</head>
+<body>
+<h1>
+    修改
+</h1>
+<form method="post" action="http://localhost:3000/movie/modify">
+    uid : <input type="text" name="uid" value="<%=demo.uid%>"/><br/>
+    title:<input type="text" name="title" value="<%=demo.title%>"/><br/>
+    content:<textarea name="content"><%=demo.content%></textarea><br/>
+    <input type="hidden" name="id" value="<%=demo._id%>"/>
+
+    <input type="submit" value="submit"/>
+    <input type="reset" value="reset"/>
+</form>
+</body>
+</html>
