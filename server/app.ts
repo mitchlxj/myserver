@@ -13,12 +13,14 @@ const userRouter = require('./router/taskmgr/user');
 const testRouter = require('./router/test');
 const movieRouter = require('./router/movie');
 const authRouter = require('./router/myApp/auth');
+const userQuestionRouter = require('./router/myApp/userQuestion');
+const userAnswerRouter = require('./router/myApp/userAnswer');
 
 const path = require('path');
 
 const app = express();
 
-const ip = '192.168.1.103';
+const ip = '192.168.1.111';
 
 const port = Number(process.env.PORT) || 3500;
 
@@ -57,4 +59,9 @@ app.use('/users',userRouter);
 
 app.use('/test', testRouter);
 app.use('/movie', movieRouter);
+
+
+
 app.use('/myappAuth',authRouter);
+app.use('/userQuestion',userQuestionRouter);
+app.use('/userAnswer',userAnswerRouter);

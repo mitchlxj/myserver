@@ -12,9 +12,11 @@ var userRouter = require('./router/taskmgr/user');
 var testRouter = require('./router/test');
 var movieRouter = require('./router/movie');
 var authRouter = require('./router/myApp/auth');
+var userQuestionRouter = require('./router/myApp/userQuestion');
+var userAnswerRouter = require('./router/myApp/userAnswer');
 var path = require('path');
 var app = express();
-var ip = '192.168.1.103';
+var ip = '192.168.1.111';
 var port = Number(process.env.PORT) || 3500;
 //连接数据库
 db.connectDataBase();
@@ -42,3 +44,5 @@ app.use('/users', userRouter);
 app.use('/test', testRouter);
 app.use('/movie', movieRouter);
 app.use('/myappAuth', authRouter);
+app.use('/userQuestion', userQuestionRouter);
+app.use('/userAnswer', userAnswerRouter);

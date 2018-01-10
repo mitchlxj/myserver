@@ -117,7 +117,7 @@ router.get('/register', (request, response) => {
         mobile: request.query.mobile,
         password: request.query.password,
         nickname: request.query.nickname,
-        avatar:'http://192.168.1.103:3500/myappAuth/getimg/19-014845_297.jpg',
+        avatar:'http://192.168.1.111:3500/myappAuth/getimg/19-014845_297.jpg',
     });
 
     auth.save(function (err, user) {
@@ -213,7 +213,7 @@ router.post('/uploadheadface',ensureAuthorized,(req, res) => {
             const fullName = name+'.'+type;
             console.log(fullName);
             //图片获取链接
-            const _avatar = 'http://192.168.1.103:3500/myappAuth/getimg/'+fullName;
+            const _avatar = 'http://192.168.1.111:3500/myappAuth/getimg/'+fullName;
             console.log(_avatar);
             console.log(Userid);
             UserModel.findByIdAndUpdate(Userid,{avatar:_avatar},(err,docs)=>{
@@ -239,7 +239,7 @@ router.get('/getimg/:filename',(req, res) => {
     var filePath = path.join(targetDir, req.params.filename);
 	fs.exists(filePath, (exists) => {
         if(exists){
-            res.sendfile(filePath);
+            res.sendFile(filePath);
         }
 	});
 });
