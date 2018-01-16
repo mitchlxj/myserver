@@ -75,12 +75,14 @@ router.get('/getqusetionlist', function (request, response) {
 });
 router.get('/getquestion', ensureAuthorized, function (req, res) {
     var q_id = req.query.q_id;
+    var userid = req.query.userId;
     var data = {
         Status: '',
         StatusContent: '',
         question: '',
         answers: '',
         user: '',
+        IsFavourite: null,
     };
     UserQuestion.findOne({ _id: q_id })
         .populate('answers', null, null, { sort: { _id: -1 } })
@@ -91,12 +93,46 @@ router.get('/getquestion', ensureAuthorized, function (req, res) {
             data.StatusContent = '获取失败: ' + err;
         }
         else {
-            data.Status = 'OK';
-            data.StatusContent = '获取成功';
-            data.question = docs;
-            data.answers = docs.answers;
+            UserModel.findOne({ _id: userid }).exec(function (err, user) {
+                var index = user.IsFavourite.indexOf(q_id);
+                if (index < 0) {
+                    data.IsFavourite = false;
+                }
+                else {
+                    data.IsFavourite = true;
+                }
+                data.Status = 'OK';
+                data.StatusContent = '获取成功';
+                data.question = docs;
+                data.answers = docs.answers;
+                res.send(data);
+            });
         }
-        res.send(data);
+    });
+});
+router.get('/getuserquestionlist', function (req, res) {
+    var userId = req.query.userid;
+    var type = req.query.type;
+    var data = {
+        Status: '',
+        StatusContent: '',
+        Favourite: '',
+    };
+    UserModel.findOne({ _id: userId })
+        .populate('IsFavourite')
+        .exec(function (err, docs) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            UserQuestion.find({ _id: docs.IsFavourite }).sort({ _id: -1 }).populate('userId')
+                .exec(function (err, favourite) {
+                data.Status = 'OK';
+                data.StatusContent = '返回成功';
+                data.Favourite = favourite;
+                res.send(data);
+            });
+        }
     });
 });
 module.exports = router;

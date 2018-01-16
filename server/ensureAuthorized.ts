@@ -1,4 +1,5 @@
 import * as jwt from 'jsonwebtoken';
+import {global} from './global';
 
 const ensureAuthorized = (req,res,next)=>{
     const data = {
@@ -6,6 +7,10 @@ const ensureAuthorized = (req,res,next)=>{
         StatusContent:'',
         token:null,
     };
+
+
+    const g = new global();
+
     const token = req.body.token || req.query.token ||req.headers['authorization'];
 
     if(token){

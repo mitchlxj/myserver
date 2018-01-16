@@ -5,12 +5,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * Created by Administrator on 2017/11/28.
  */
 var mongoose = require("mongoose");
+var mongoose_1 = require("mongoose");
 var formatTime = require('date-fns/format');
 var userSchema = new mongoose.Schema({
     mobile: String,
     password: String,
     nickname: String,
     token: String,
+    IsFavourite: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'userQuestion' }],
     avatar: {
         type: String,
         default: ''

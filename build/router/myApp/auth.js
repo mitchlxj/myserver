@@ -100,6 +100,45 @@ router.get('/login', function (request, response) {
         }
     });
 });
+router.get('/isfavourite', function (req, res) {
+    var questionId = req.query.q_id;
+    var userId = req.query.userId;
+    console.log(questionId);
+    console.log(userId);
+    var data = {
+        Status: '',
+        StatusContent: '',
+        isFavourite: null,
+    };
+    UserModel.findOne({ _id: userId }).exec(function (err, user) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            console.log(user);
+            console.log(user.IsFavourite.indexOf(questionId));
+            if (user.IsFavourite.indexOf(questionId) === -1) {
+                user.IsFavourite.push(questionId);
+                user.save(function (err, doc) {
+                    data.Status = 'OK';
+                    data.StatusContent = '关注成功';
+                    data.isFavourite = true;
+                    res.send(data);
+                });
+            }
+            else {
+                var index = user.IsFavourite.indexOf(questionId);
+                user.IsFavourite.splice(index, 1);
+                user.save(function (err, doc) {
+                    data.Status = 'OK';
+                    data.StatusContent = '取消关注';
+                    data.isFavourite = false;
+                    res.send(data);
+                });
+            }
+        }
+    });
+});
 router.get('/register', function (request, response) {
     var auth = new UserModel({
         mobile: request.query.mobile,

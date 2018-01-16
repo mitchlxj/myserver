@@ -10,7 +10,7 @@ var UserModel = require('../../model/myApp_model/user_model');
 var formatTime = require('date-fns/format');
 var userAnswer = new mongoose.Schema({
     question: { type: mongoose_1.Schema.Types.ObjectId, ref: 'userQuestion' },
-    userId: String,
+    userId: { type: mongoose_1.Schema.Types.ObjectId, ref: 'auth' },
     userNickName: String,
     avatar: String,
     content: String,

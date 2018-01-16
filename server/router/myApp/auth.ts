@@ -33,23 +33,23 @@ router.get('/userinfo', ensureAuthorized, (request, response) => {
         UserNickName: null,
         token: null,
     };
-    
-    UserModel.findOne({_id:userid},(err,user)=>{
-        if(err){
+
+    UserModel.findOne({ _id: userid }, (err, user) => {
+        if (err) {
             console.log(err);
-        }else{
+        } else {
             data.Status = 'OK';
-            data.StatusContent="返回成功"; 
-            if(user.avatar){
+            data.StatusContent = "返回成功";
+            if (user.avatar) {
                 data.UserHeadFace = user.avatar;
             }
-           
-            data.UserId= user._id;
+
+            data.UserId = user._id;
             data.UserNickName = user.nickname;
             data.token = user.token;
             response.send(data);
         }
-    }) 
+    })
 });
 
 
@@ -81,14 +81,14 @@ router.get('/login', (request, response) => {
                 } else {
                     console.log(user);
                     //创建token
-                    const token = jwt.sign({userId:user._id}, 'app.get(superSecret)', {
+                    const token = jwt.sign({ userId: user._id }, 'app.get(superSecret)', {
                         expiresIn: '60m',
                     });
 
-                    UserModel.findByIdAndUpdate(user._id,{token:token},(err,docs)=>{
-                        if(err){
+                    UserModel.findByIdAndUpdate(user._id, { token: token }, (err, docs) => {
+                        if (err) {
                             console.log(err);
-                        }else{
+                        } else {
                             console.log(docs);
                         }
                     });
@@ -111,13 +111,58 @@ router.get('/login', (request, response) => {
 });
 
 
+router.get('/isfavourite', (req, res) => {
+    const questionId = req.query.q_id;
+    const userId = req.query.userId;
+    console.log(questionId);
+    console.log(userId)
+
+    const data = {
+        Status: '',
+        StatusContent: '',
+        isFavourite: null,
+    }
+
+    UserModel.findOne({ _id: userId }).exec((err, user) => {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(user);
+            console.log(user.IsFavourite.indexOf(questionId));
+            if (user.IsFavourite.indexOf(questionId) === -1) {
+                user.IsFavourite.push(questionId);
+                user.save((err, doc) => {
+                    data.Status = 'OK';
+                    data.StatusContent = '关注成功';
+                    data.isFavourite = true;
+                    res.send(data);
+                })
+            }else{
+                const index = user.IsFavourite.indexOf(questionId);
+                user.IsFavourite.splice(index,1);
+                user.save((err, doc) => {
+                    data.Status = 'OK';
+                    data.StatusContent = '取消关注';
+                    data.isFavourite = false;
+                    res.send(data);
+                })
+            }
+
+        }
+
+    })
+
+    
+})
+
+
 router.get('/register', (request, response) => {
 
     const auth = new UserModel({
         mobile: request.query.mobile,
         password: request.query.password,
         nickname: request.query.nickname,
-        avatar:'http://192.168.1.111:3500/myappAuth/getimg/19-014845_297.jpg',
+        avatar: 'http://192.168.1.111:3500/myappAuth/getimg/19-014845_297.jpg',
     });
 
     auth.save(function (err, user) {
@@ -137,7 +182,7 @@ router.get('/register', (request, response) => {
             data.Status = 'OK';
             data.StatusContent = '注册成功';
             data.UserId = user._id;
-            data.UserHeadFace=user.avatar;
+            data.UserHeadFace = user.avatar;
             data.UserNickName = user.nickname;
 
         }
@@ -148,41 +193,41 @@ router.get('/register', (request, response) => {
 
 
 
-router.post('/uploadheadface',ensureAuthorized,(req, res) => {
+router.post('/uploadheadface', ensureAuthorized, (req, res) => {
     console.log(3333333333);
     const Userid = req.query.Userid;
 
     const form = new formidable.IncomingForm();
     form.encoding = 'utf-8';
-    let tmpPath = __dirname.substring(0,__dirname.indexOf('build'));
-    form.uploadDir = path.join(tmpPath+"/build/resouces/uploadHeaderFace");
+    let tmpPath = __dirname.substring(0, __dirname.indexOf('build'));
+    form.uploadDir = path.join(tmpPath + "/build/resouces/uploadHeaderFace");
     form.keepExtensions = true;
-    form.maxFieldsSize = 1*1024*1024;
+    form.maxFieldsSize = 1 * 1024 * 1024;
 
-    form.parse(req,(err,fields,files)=>{
+    form.parse(req, (err, fields, files) => {
         console.log(fields);
         console.log(files);
-        if(err){
-            res.send({error:err});
+        if (err) {
+            res.send({ error: err });
             console.log(err);
             return;
         }
 
- 
-        for(var key in files){
+
+        for (var key in files) {
             const nameArray = files[key].name.split('.');
-            const type = nameArray[nameArray.length-1];
+            const type = nameArray[nameArray.length - 1];
             let name = '';
-            for(let i=0;i<nameArray.length-1;i++){
+            for (let i = 0; i < nameArray.length - 1; i++) {
                 name = name + nameArray[i];
             }
-            const newPath = form.uploadDir+'/'+ name + '.' + type;
+            const newPath = form.uploadDir + '/' + name + '.' + type;
 
-            fs.renameSync(files[key].path,newPath);
-           
+            fs.renameSync(files[key].path, newPath);
+
             if (files[key].size > form.maxFieldsSize) {
                 console.log('图片不能大于1M');
-                res.send({error:'图片不能大于1M'});
+                res.send({ error: '图片不能大于1M' });
                 return;
             }
 
@@ -193,9 +238,9 @@ router.post('/uploadheadface',ensureAuthorized,(req, res) => {
             const data = {
                 Status: '',
                 StatusContent: '',
-                path:'',
-                name:'',
-                type:'',
+                path: '',
+                name: '',
+                type: '',
             };
             if (err) {
                 data.Status = 'false';
@@ -203,56 +248,56 @@ router.post('/uploadheadface',ensureAuthorized,(req, res) => {
             } else {
                 data.Status = 'OK';
                 data.StatusContent = '图片上传成功';
-                data.path= uploadfilename;
-                data.name= upload_filename;
-                data.type= type;
-    
+                data.path = uploadfilename;
+                data.name = upload_filename;
+                data.type = type;
+
             }
 
             //改变数据库中的avatar路径链接
-            const fullName = name+'.'+type;
+            const fullName = name + '.' + type;
             console.log(fullName);
             //图片获取链接
-            const _avatar = 'http://192.168.1.111:3500/myappAuth/getimg/'+fullName;
+            const _avatar = 'http://192.168.1.111:3500/myappAuth/getimg/' + fullName;
             console.log(_avatar);
             console.log(Userid);
-            UserModel.findByIdAndUpdate(Userid,{avatar:_avatar},(err,docs)=>{
-    
+            UserModel.findByIdAndUpdate(Userid, { avatar: _avatar }, (err, docs) => {
+
             });
 
 
             res.send(JSON.stringify(data));
         }
 
-       
+
     });
-    
+
 
 });
 
 
 //获取图片
-router.get('/getimg/:filename',(req, res) => {
+router.get('/getimg/:filename', (req, res) => {
     console.log('获取图片');
     var tmpPath = __dirname.substring(0, __dirname.indexOf('build'));
     var targetDir = path.join(tmpPath + "/build/resouces/uploadHeaderFace");
     var filePath = path.join(targetDir, req.params.filename);
-	fs.exists(filePath, (exists) => {
-        if(exists){
+    fs.exists(filePath, (exists) => {
+        if (exists) {
             res.sendFile(filePath);
         }
-	});
+    });
 });
 
 
-router.get('/userinfoupdate',ensureAuthorized,(req,res)=>{
-   const userid = req.query.UserId;
-   const nickname = req.query.nickname;
+router.get('/userinfoupdate', ensureAuthorized, (req, res) => {
+    const userid = req.query.UserId;
+    const nickname = req.query.nickname;
 
-   UserModel.findByIdAndUpdate(userid,{nickname:nickname},(err,data)=>{
-        if(err){
+    UserModel.findByIdAndUpdate(userid, { nickname: nickname }, (err, data) => {
+        if (err) {
             res.send(err);
-        }else{
+        } else {
             const data = {
                 Status: '',
                 StatusContent: '',
@@ -263,12 +308,12 @@ router.get('/userinfoupdate',ensureAuthorized,(req,res)=>{
             };
 
             data.Status = 'OK';
-            data.StatusContent='更新成功';
-            data.UserId=userid;
-            data.UserNickName=nickname; 
+            data.StatusContent = '更新成功';
+            data.UserId = userid;
+            data.UserNickName = nickname;
             res.send(JSON.stringify(data));
         }
-   });
+    });
 
 
 

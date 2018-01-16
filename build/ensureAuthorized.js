@@ -1,12 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var jwt = require("jsonwebtoken");
+var global_1 = require("./global");
 var ensureAuthorized = function (req, res, next) {
     var data = {
         Status: '',
         StatusContent: '',
         token: null,
     };
+    var g = new global_1.global();
     var token = req.body.token || req.query.token || req.headers['authorization'];
     if (token) {
         jwt.verify(token, 'app.get(superSecret)', function (err, decode) {

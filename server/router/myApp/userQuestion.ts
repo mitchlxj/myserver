@@ -103,7 +103,7 @@ router.get('/getqusetionlist', (request, response) => {
 router.get('/getquestion', ensureAuthorized, (req, res) => {
 
     const q_id = req.query.q_id;
-
+    const userid = req.query.userId;
 
     const data = {
         Status: '',
@@ -111,6 +111,7 @@ router.get('/getquestion', ensureAuthorized, (req, res) => {
         question: '',
         answers: '',
         user: '',
+        IsFavourite:null,
     };
 
     UserQuestion.findOne({ _id: q_id })
@@ -121,16 +122,57 @@ router.get('/getquestion', ensureAuthorized, (req, res) => {
                 data.Status = 'false';
                 data.StatusContent = '获取失败: ' + err;
             } else {
-                data.Status = 'OK';
-                data.StatusContent = '获取成功';
-                data.question = docs;
-                data.answers = docs.answers;
+                UserModel.findOne({_id:userid}).exec((err,user)=>{
 
+                    const index = user.IsFavourite.indexOf(q_id);
+                    if(index < 0)
+                    {
+                        data.IsFavourite = false;
+                    }else{
+                        data.IsFavourite = true;
+                    }
+                    data.Status = 'OK';
+                    data.StatusContent = '获取成功';
+                    data.question = docs;
+                    data.answers = docs.answers;
+
+                    res.send(data);
+                })
+               
             }
 
-            res.send(data);
         })
 
+
+})
+
+router.get('/getuserquestionlist',(req,res)=>{
+
+    const userId = req.query.userid;
+    const type = req.query.type;
+
+
+    const data = {
+        Status: '',
+        StatusContent: '',
+        Favourite: '',
+    };
+
+    UserModel.findOne({_id:userId})
+    .populate('IsFavourite')
+    .exec((err,docs)=>{
+        if(err){
+            console.log(err);
+        }else{
+            UserQuestion.find({_id:docs.IsFavourite}).sort({_id:-1}).populate('userId')
+            .exec((err,favourite)=>{
+                data.Status = 'OK';
+                data.StatusContent ='返回成功';
+                data.Favourite = favourite;
+                res.send(data);
+            })
+        }
+    })
 
 })
 
