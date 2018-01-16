@@ -64,8 +64,8 @@ wsSever.on('connection', (websocket, request) => {
     // console.log(websocket);
     const data = socketDeal.socketDealUrl(request.url);
     //添加websocket到数组中保存
-
-    websocket.send('欢迎连接服务器');
+    const msg = {type:'connection',message:'欢迎连接服务器'};
+    websocket.send(JSON.stringify(msg));
 
     socketDeal.socketAddClient(websocket, data['userId']);
 

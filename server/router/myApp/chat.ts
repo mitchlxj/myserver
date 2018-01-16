@@ -40,7 +40,7 @@ router.get('/save', (request, response) => {
     };
 
     const data = request.query;
-    console.log(request.query);
+
     const chat = new chatModel({
         messageId: data.messageId,
         userId: data.userId,
@@ -56,20 +56,20 @@ router.get('/save', (request, response) => {
             chatModel.findOne({ messageId: data.messageId })
                 .populate('userId')
                 .populate('toUserId')
-                .exec((err, chat) => {
+                .exec((err, docs) => {
 
                     reData.Status = 'OK';
                     reData.StatusContent = '返回成功';
-                    reData.messageId = chat.messageId;
-                    reData.userId = chat.userId;
-                    reData.toUserId = chat.toUserId;
-                    reData.message = chat.message;
-                    reData.satatus = chat.satatus;
-                    reData.username = chat.userId.nickname;
-                    reData.userImgUrl= chat.userId.avatar;
-                    reData.tousername=chat.toUserId.nickname;
-                    reData.touserImgUrl=chat.toUserId.avatar;
-                    reData.time=Number(chat.time);
+                    reData.messageId = docs.messageId;
+                    reData.userId = docs.userId._id;
+                    reData.toUserId = docs.toUserId._id;
+                    reData.message = docs.message;
+                    reData.satatus = docs.satatus;
+                    reData.username = docs.userId.nickname;
+                    reData.userImgUrl= docs.userId.avatar;
+                    reData.tousername=docs.toUserId.nickname;
+                    reData.touserImgUrl=docs.toUserId.avatar;
+                    reData.time=Number(docs.messageId);
 
                     response.send(reData);
 

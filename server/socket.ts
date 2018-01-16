@@ -48,14 +48,17 @@ export class SocketDeal {
         }
     }
 
-    socketGetClient(clientid) {
+    socketGetClient(clientid): any {
+        let wsSocket = null;
         this.socketClient.forEach(socket => {
             if (socket.userId === clientid) {
-                return socket;
+                console.log('jjjjjjjjjjjj');
+
+                wsSocket = socket;
             }
         })
 
-        return null;
+        return wsSocket;
     }
 
 
@@ -133,12 +136,23 @@ export class SocketDeal {
 
             res.on('end', () => {
                 const chatMessage = JSON.parse(chat);
-                //返回回来对应发送的聊天对象，并发送到指定的客户端。
-                const tmpChat = this.socketGetClient(chatMessage.toUserId);
-                if(tmpChat!=null)
-                {
-                    tmpChat.ws.send(JSON.stringify(chatMessage));
-                }
+
+                setTimeout(() => {
+                    //返回回来对应发送的聊天对象，并发送到指定的客户端。
+                    const tmpChat = this.socketGetClient(chatMessage.toUserId);
+
+                    if (tmpChat != null) {
+
+                        console.log(tmpChat.ws.readyState);
+                        if (tmpChat.ws.readyState === 1) {
+                        
+                            console.log(chatMessage);
+                            tmpChat.ws.send(JSON.stringify(chatMessage));
+                        }
+
+                    }
+                }, 1000);
+
             })
         })
 
@@ -152,10 +166,14 @@ export class SocketDeal {
 
 
     socketTimeSend() {
+        const data = {
+            type: 'interval',
+            message: '这是定时发送的消息',
+        }
         setInterval(() => {
             this.socketClient.forEach(socket => {
                 if (socket.ws.readyState === 1) {
-                    socket.ws.send('这是定时发送的消息');
+                    socket.ws.send(JSON.stringify(data));
                 } else {
                     this.socketRemoveClient(socket.userId);
                 }

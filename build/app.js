@@ -41,7 +41,8 @@ wsSever.on('connection', function (websocket, request) {
     // console.log(websocket);
     var data = socketDeal.socketDealUrl(request.url);
     //添加websocket到数组中保存
-    websocket.send('欢迎连接服务器');
+    var msg = { type: 'connection', message: '欢迎连接服务器' };
+    websocket.send(JSON.stringify(msg));
     socketDeal.socketAddClient(websocket, data['userId']);
     //开启监听socketClient的消息;
     socketDeal.socketGetMsgFromClientEvent(websocket);

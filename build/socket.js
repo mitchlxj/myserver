@@ -32,12 +32,14 @@ var SocketDeal = /** @class */ (function () {
         }
     };
     SocketDeal.prototype.socketGetClient = function (clientid) {
+        var wsSocket = null;
         this.socketClient.forEach(function (socket) {
             if (socket.userId === clientid) {
-                return socket;
+                console.log('jjjjjjjjjjjj');
+                wsSocket = socket;
             }
         });
-        return null;
+        return wsSocket;
     };
     SocketDeal.prototype.socketIsHaveClient = function (clientid) {
         this.socketClient.forEach(function (socket) {
@@ -83,6 +85,7 @@ var SocketDeal = /** @class */ (function () {
         });
     };
     SocketDeal.prototype.socketChatMessage = function (tmpMessage) {
+        var _this = this;
         var ip = this.g.ip;
         var port = this.g.port.toString();
         var _message = querystring.stringify(tmpMessage);
@@ -93,13 +96,23 @@ var SocketDeal = /** @class */ (function () {
             method: 'GET'
         };
         var req = http.get(options, function (res) {
-            var json = '';
+            var chat = '';
             res.on('data', function (d) {
-                json += d;
+                chat += d;
             });
             res.on('end', function () {
-                json = JSON.parse(json);
-                //返回回来对应发送的聊天对象，并发送到指定的客户端。
+                var chatMessage = JSON.parse(chat);
+                setTimeout(function () {
+                    //返回回来对应发送的聊天对象，并发送到指定的客户端。
+                    var tmpChat = _this.socketGetClient(chatMessage.toUserId);
+                    if (tmpChat != null) {
+                        console.log(tmpChat.ws.readyState);
+                        if (tmpChat.ws.readyState === 1) {
+                            console.log(chatMessage);
+                            tmpChat.ws.send(JSON.stringify(chatMessage));
+                        }
+                    }
+                }, 1000);
             });
         });
         req.on('error', function (e) {
@@ -109,10 +122,14 @@ var SocketDeal = /** @class */ (function () {
     };
     SocketDeal.prototype.socketTimeSend = function () {
         var _this = this;
+        var data = {
+            type: 'interval',
+            message: '这是定时发送的消息',
+        };
         setInterval(function () {
             _this.socketClient.forEach(function (socket) {
                 if (socket.ws.readyState === 1) {
-                    socket.ws.send('这是定时发送的消息');
+                    socket.ws.send(JSON.stringify(data));
                 }
                 else {
                     _this.socketRemoveClient(socket.userId);
