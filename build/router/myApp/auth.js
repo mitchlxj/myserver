@@ -74,7 +74,7 @@ router.get('/login', function (request, response) {
                     console.log(user);
                     //创建token
                     var token = jwt.sign({ userId: user._id }, 'app.get(superSecret)', {
-                        expiresIn: '60m',
+                        expiresIn: '180m',
                     });
                     UserModel.findByIdAndUpdate(user._id, { token: token }, function (err, docs) {
                         if (err) {
@@ -171,7 +171,6 @@ router.get('/register', function (request, response) {
     });
 });
 router.post('/uploadheadface', ensureAuthorized, function (req, res) {
-    console.log(3333333333);
     var Userid = req.query.Userid;
     var form = new formidable.IncomingForm();
     form.encoding = 'utf-8';
@@ -232,6 +231,37 @@ router.post('/uploadheadface', ensureAuthorized, function (req, res) {
             UserModel.findByIdAndUpdate(Userid, { avatar: _avatar }, function (err, docs) {
             });
             res.send(JSON.stringify(data));
+        }
+    });
+});
+//获取所有用户信息
+router.get('/users', function (req, res) {
+    var userId = req.query.userId;
+    console.log(userId);
+    var users = [];
+    UserModel.find({}).exec(function (err, docs) {
+        if (err) {
+            console.log(err);
+        }
+        else {
+            for (var i = 0; i < docs.length; i++) {
+                if (docs[i]._id != userId) {
+                    var data = {
+                        Status: '',
+                        StatusContent: '',
+                        UserHeadFace: null,
+                        UserId: null,
+                        UserNickName: null,
+                    };
+                    data.Status = 'OK';
+                    data.StatusContent = '返回成功';
+                    data.UserId = docs[i]._id;
+                    data.UserNickName = docs[i].nickname;
+                    data.UserHeadFace = docs[i].avatar;
+                    users.push(data);
+                }
+            }
+            res.send(users);
         }
     });
 });

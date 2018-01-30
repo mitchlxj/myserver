@@ -82,7 +82,7 @@ router.get('/login', (request, response) => {
                     console.log(user);
                     //创建token
                     const token = jwt.sign({ userId: user._id }, 'app.get(superSecret)', {
-                        expiresIn: '60m',
+                        expiresIn: '180m',
                     });
 
                     UserModel.findByIdAndUpdate(user._id, { token: token }, (err, docs) => {
@@ -194,7 +194,7 @@ router.get('/register', (request, response) => {
 
 
 router.post('/uploadheadface', ensureAuthorized, (req, res) => {
-    console.log(3333333333);
+
     const Userid = req.query.Userid;
 
     const form = new formidable.IncomingForm();
@@ -274,6 +274,49 @@ router.post('/uploadheadface', ensureAuthorized, (req, res) => {
 
 
 });
+
+//获取所有用户信息
+router.get('/users',(req,res)=>{
+   
+    const userId = req.query.userId;
+    console.log(userId)
+    const users = [];
+
+    UserModel.find({}).exec((err,docs)=>{
+        if(err){
+            console.log(err);
+        }else{
+
+
+            for(let i = 0;i<docs.length;i++){
+
+                if(docs[i]._id != userId){
+                    const data = {
+                        Status: '',
+                        StatusContent: '',
+                        UserHeadFace: null,
+                        UserId: null,
+                        UserNickName: null,
+                    }
+        
+                    data.Status = 'OK';
+                    data.StatusContent = '返回成功';
+                    data.UserId = docs[i]._id;
+                    data.UserNickName = docs[i].nickname;
+                    data.UserHeadFace = docs[i].avatar;
+    
+                    users.push(data);
+                }
+               
+            }
+
+            res.send(users);
+
+        }
+    })
+
+
+})
 
 
 //获取图片

@@ -107,6 +107,22 @@ router.get('/getmessgelist', function (req, res) {
                 data.satatus = docs[i].satatus;
                 chatAll.chatData.push(data);
             }
+            //将对方发送的聊天信息状态设置成success代表已经接收到了消息
+            chatModel.find({ userId: touserId, toUserId: userId }).exec(function (err, toUserChat) {
+                if (err) {
+                    console.log(err);
+                }
+                else {
+                    toUserChat.forEach(function (element) {
+                        element.satatus = 'success';
+                        element.save(function (err, cb) {
+                            if (err) {
+                                console.log(err);
+                            }
+                        });
+                    });
+                }
+            });
             res.send(chatAll);
         }
     });

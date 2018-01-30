@@ -76,6 +76,10 @@ wsSever.on('connection', (websocket, request) => {
     socketDeal.socketTimeSend();
 });
 
+wsSever.on('error',(err)=>{
+    console.log(err);
+})
+
 
 
 app.all('*', function (req, res, next) {

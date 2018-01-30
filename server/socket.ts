@@ -168,6 +168,7 @@ export class SocketDeal {
     socketTimeSend() {
         const data = {
             type: 'interval',
+            chatTabMessage:'',
             message: '这是定时发送的消息',
         }
         setInterval(() => {

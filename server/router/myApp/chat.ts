@@ -132,6 +132,22 @@ router.get('/getmessgelist', (req, res) => {
 
                     chatAll.chatData.push(data);
                 }
+                //将对方发送的聊天信息状态设置成success代表已经接收到了消息
+                chatModel.find( { userId: touserId, toUserId: userId } ).exec((err,toUserChat)=>{
+                    if(err){
+                        console.log(err);
+                    }else{
+                        toUserChat.forEach(element => {
+                            element.satatus = 'success';
+                            element.save((err,cb)=>{
+                                if(err){
+                                    console.log(err);
+                                }
+                            });
+                        });
+                       
+                    }
+                })
 
                 res.send(chatAll);
             }
